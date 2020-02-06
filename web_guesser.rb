@@ -1,28 +1,41 @@
 require 'sinatra'
 require 'sinatra/reloader'
 
-random_num = rand(100)
+set :SECRET_NUMBER, rand(100)
 
 get '/' do
-  # "The SECRET NUMBER is #{random_num}"
-  # throw params.inspect
-  if params['guess'].nil?
-    erb :index, :locals => {:num => "xx", :msg => 'oof'}
-  else
-    diff = params['guess'].to_i - random_num
+  number = "xx"
+  guess = params['guess']
+  eval = eval_guess(guess)
+  message = eval[0]
+  show = eval[1]
+  if show
+    number = settings.SECRET_NUMBER
+  end
+    erb :index, :locals => {:num => number, :msg => message}
+end
+
+def eval_guess(n)
+  msg = ""
+  show = false
+  unless n.nil?
+    n = n.to_i
+    diff = n - settings.SECRET_NUMBER
     case diff
     when 1..5
-      erb :index, :locals => {:num => "xx", :msg => 'Too high bro' }
+      msg = 'Too high bro'
     when -5..-1
-      erb :index, :locals => {:num => "xx", :msg => 'Too low bro' }
+      msg = 'Too low bro'
     when 5..Float::INFINITY
-      erb :index, :locals => {:num => "xx", :msg => 'Way Too high bro' }
+      msg = 'Way Too high bro'
     when -Float::INFINITY..-5
-      erb :index, :locals => {:num => "xx", :msg => 'Way Too low bro' }
+      msg = 'Way Too low bro'
     else
-      erb :index, :locals => {:num => random_num, :msg => 'bullseye bro' }
+      msg = "bullseye bro the number is #{n}"
+      show = true
     end
   end
+  return [msg, show]
 end
 
 
